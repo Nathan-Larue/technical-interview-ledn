@@ -1,4 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap');
+
+* {
+  font-family: 'Lato', sans-serif;
+}
+
 html {
   --color-main-grey-light: #2b2c34;
   --color-main-grey-dark: #24252b;
+  --color-ledn-blue: #16668e;
+}
+
+body {
+  margin: 0px;
+  background-image: linear-gradient(
+    -45deg, 
+    var(--color-main-grey-light) 25%, 
+    var(--color-main-grey-dark) 25%, 
+    var(--color-main-grey-dark) 50%, 
+    var(--color-main-grey-light) 50%, 
+    var(--color-main-grey-light) 75%, 
+    var(--color-main-grey-dark) 75%, 
+    var(--color-main-grey-dark) 100%
+  );
+  background-size: 6px 6px;
 }

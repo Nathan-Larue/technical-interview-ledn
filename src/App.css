@@ -1,1 +1,11 @@
+.ledn-app{
+    width: 100%;
+    height: 100vh;
+    display: inline-block;
+}
 
+.header-wrapper{
+    display: inline-block;
+    width: 210px;
+    height: 100%;
+}
