@@ -1,8 +1,9 @@
-import './Tokens.css';
+import './TokensPage.css';
 import React from 'react';
 import {Add, Download} from '@icon-park/react';
+import {TokensList} from '../tokens-list/TokensList.js'
 
-export class Tokens extends React.Component {
+export class TokensPage extends React.Component {
     render(){
         return (
             <div className="token-page">
@@ -24,6 +25,9 @@ export class Tokens extends React.Component {
                             CSV
                         </div>
                     </button>
+                </div>
+                <div className="token-list-wrapper">
+                    <TokensList/>
                 </div>
             </div>
         );

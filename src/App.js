@@ -1,5 +1,5 @@
 import './App.css';
-import {Tokens} from './components/tokens/Tokens.js'
+import {TokensPage} from './components/tokens-page/TokensPage.js'
 import {Header} from './components/header/Header.js'
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
         <Header/>
       </div>
       <div className="content-wrapper">
-        <Tokens/>
+        <TokensPage/>
       </div>
     </div>
   );
