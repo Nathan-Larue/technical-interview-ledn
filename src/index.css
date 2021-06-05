@@ -7,7 +7,9 @@
 html {
   --color-main-grey-light: #2b2c34;
   --color-main-grey-dark: #24252b;
-  --color-ledn-blue: #16668e;
+  --color-ledn-blue: #6CD0E4;
+  --color-input-background: #3B3C45;
+  --color-text-light: #E1E2EB;
 }
 
 body {

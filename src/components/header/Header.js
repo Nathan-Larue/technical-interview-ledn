@@ -8,22 +8,22 @@ export class Header extends React.Component {
     render(){
         return (
             <div className="header">
-                <div className="ledn-logo-wrapper">
+                <div className="ledn-logo-wrapper header-separator">
                     <img src={ledn_logo} className="ledn-logo" alt="logo" />
                 </div>
                 
                 <div className="header-button">
                     <div className="header-button-icon">
-                        <Home fill="white"/>
+                        <Home/>
                     </div>
                     <div className="header-button-text">
                         <span>DASHBOARD</span>
                     </div>
                 </div>
                 
-                <div className="header-button">
+                <div className="header-button header-button-selected">
                     <div className="header-button-icon">
-                        <Wallet fill="white"/>
+                        <Wallet/>
                     </div>
                     <div className="header-button-text">
                         <span>TOKENS</span>
@@ -32,7 +32,7 @@ export class Header extends React.Component {
                 
                 <div className="header-button">
                     <div className="header-button-icon">
-                        <Bitcoin fill="white"/>
+                        <Bitcoin/>
                     </div>
                     <div className="header-button-text">
                         <span>BTC SAVINGS</span>
@@ -41,7 +41,7 @@ export class Header extends React.Component {
                 
                 <div className="header-button">
                     <div className="header-button-icon">
-                        <Dollar fill="white"/>
+                        <Dollar/>
                     </div>
                     <div className="header-button-text">
                         <span>USDC SAVINGS</span>
@@ -50,7 +50,7 @@ export class Header extends React.Component {
                 
                 <div className="header-button">
                     <div className="header-button-icon">
-                        <Exchange fill="white"/>
+                        <Exchange/>
                     </div>
                     <div className="header-button-text">
                         <span>B2X</span>
@@ -59,16 +59,16 @@ export class Header extends React.Component {
                 
                 <div className="header-button">
                     <div className="header-button-icon">
-                        <HoldSeeds fill="white"/>
+                        <HoldSeeds/>
                     </div>
                     <div className="header-button-text">
                         <span>BORROW</span>
                     </div>
                 </div>
                 
-                <div className="header-button">
+                <div className="header-button header-separator">
                     <div className="header-button-icon">
-                        <CooperativeHandshake fill="white"/>
+                        <CooperativeHandshake/>
                     </div>
                     <div className="header-button-text">
                         <span>REFERRALS</span>

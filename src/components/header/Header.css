@@ -17,8 +17,26 @@
 
 .header-button{
     display: inline-block;
-    padding-bottom: 25px;
+    padding: 12px;
     width: 100%;
+    transition: 0.3s;
+    color: var(--color-text-light);
+}
+
+.header-button:hover{
+    display: inline-block;
+    padding: 12px;
+    width: calc(100% - 24px);
+    background-color: var(--color-text-light);
+    color: var(--color-main-grey-light);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.header-button-selected{
+    width: calc(100% - 24px);
+    color: var(--color-ledn-blue);
+    background-color: var(--color-input-background);
 }
 
 .header-button-icon{
@@ -32,5 +50,8 @@
     display: inline-block;
     vertical-align: middle;
     font-size: 8pt;
-    color: white;
+}
+
+.header-separator{
+    border-bottom: 2px solid var(--color-main-grey-dark);
 }
