@@ -4,11 +4,33 @@ import {Add, Download} from '@icon-park/react';
 import {TokensList} from '../tokens-list/TokensList.js'
 
 export class TokensPage extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            searchValue: '',
+        }
+
+        // Bind this to the function to keep it defined
+        this.onSearchChange = this.onSearchChange.bind(this);
+    }
+
+    async onSearchChange(event) {
+        await this.setState({ searchValue: event.target.value });
+        console.log(this.state.searchValue);
+    }
+
     render(){
         return (
             <div className="token-page">
                 <div className="token-header-container">
-                    <input type="text" className="token-header-search" placeholder="search by name"/>
+                    <input 
+                        type="text" 
+                        className="token-header-search" 
+                        placeholder="search by name"
+                        value={this.state.searchValue}
+                        onChange={this.onSearchChange}
+                    />
                     <button className="token-header-button">
                         <div className="token-header-button-icon-wrapper">
                             <Add/>
@@ -27,7 +49,7 @@ export class TokensPage extends React.Component {
                     </button>
                 </div>
                 <div className="token-list-wrapper">
-                    <TokensList/>
+                    <TokensList search={this.state.searchValue}/>
                 </div>
             </div>
         );
