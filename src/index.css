@@ -10,6 +10,7 @@ html {
   --color-ledn-blue: #6CD0E4;
   --color-input-background: #3B3C45;
   --color-text-light: #E1E2EB;
+  --box-shadow-drop-regular: 0 0 10px rgba(0,0,0,.4);
 }
 
 body {

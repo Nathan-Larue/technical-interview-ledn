@@ -17,6 +17,7 @@
     width: calc(100% - 190px);
     color: var(--color-text-light);
     background-color: var(--color-input-background);
+    box-shadow: var(--box-shadow-drop-regular);
     border: 0px;
     padding: 5px 10px;
     font-size: 13px;
