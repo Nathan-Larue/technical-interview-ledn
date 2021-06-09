@@ -5,7 +5,16 @@ export class FilterPopover extends React.Component {
     constructor(props) {
         super(props);
         this.onSelectAllClicked = this.onSelectAllClicked.bind(this);
-        const formattedFilterList = props.filterList.map( filterItem => ({ ...filterItem, active: true})).sort(function(itemA, itemB) {
+
+        this.state = {
+            active: props.active,
+            filterList: this.formatFilterList(props.filterList),
+            isSelectAllActive: false,
+        }
+    }
+
+    formatFilterList(filterList){
+        return filterList.map( filterItem => ({ ...filterItem, active: true})).sort(function(itemA, itemB) {
             if ( itemA.ref.toLowerCase() < itemB.ref.toLowerCase() ){
                 return -1;
             }
@@ -14,16 +23,21 @@ export class FilterPopover extends React.Component {
             }
             return 0;
         });
-
-        this.state = {
-            active: props.active,
-            filterList: formattedFilterList,
-            isSelectAllActive: false,
-        }
     }
     
-    async componentWillReceiveProps(nextProps) {
-        await this.setState({ active: nextProps.active });
+    async componentDidUpdate(prevProps) {
+        if(prevProps.active !== this.props.active){
+            await this.setState({ 
+                active: this.props.active,
+            });
+        }
+
+        if(prevProps.filterList !== this.props.filterList){
+            await this.setState({ 
+                filterList: this.formatFilterList(this.props.filterList),
+                isSelectAllActive: false,
+            });
+        }
     }
 
     async onSelectAllClicked() {

@@ -1,6 +1,6 @@
 import './TokensPage.css';
 import React from 'react';
-import {Add, Download} from '@icon-park/react';
+import {Add, Reduce, Download} from '@icon-park/react';
 import {TokensList} from '../tokens-list/TokensList.js'
 import { saveAs } from 'file-saver';
 
@@ -31,9 +31,10 @@ export class TokensPage extends React.Component {
     onDownloadCsv(){
         const tokensListState = this.TokensListRef.current.state;
 
-        let csvContent = 'Name, Country, Amount, MFA Type, Email, Date of Birth, Date Created, ReferredBy\n';
+        let csvContent = 'First Name, Last Name, Country, Email, Date of Birth, MFA Type, Amount, Date Created, Referred By\n';
         tokensListState.filteredAndOrderedTokensList.forEach(tokenHolder => {
             Object.keys(tokenHolder).forEach(tokenParameter => {
+                if(tokenParameter === 'guid') return;
                 csvContent += `${tokenHolder[tokenParameter]}, `;
             });
             csvContent += `\n`;
@@ -57,14 +58,17 @@ export class TokensPage extends React.Component {
                     />
                     <button className="token-header-button" onClick={this.toggleDatasetSize}>
                         <div className="token-header-button-icon-wrapper">
-                            <Add/>
+                            {
+                                this.state.isDatasetLarge?
+                                    <Reduce/>:
+                                    <Add/>
+                            }
                         </div>
                         <div className="token-header-button-text-wrapper">
                             TOKENS
                         </div>
                     </button>
                     <button className="token-header-button" onClick={() => this.onDownloadCsv()}>
-                        {/* <CSVLink data={tokensListRef.current.getFinalList()}>Download me</CSVLink>; */}
                         <div className="token-header-button-icon-wrapper">
                             <Download/>
                         </div>

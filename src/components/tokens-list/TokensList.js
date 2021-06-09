@@ -3,62 +3,78 @@ import tokensList from '../../assets/accounts.json'
 import largeTokensList from '../../assets/accounts_large.json'
 import React from 'react';
 import {SortAmountDown, SortAmountUp, Filter} from '@icon-park/react';
-import {TOKENS_ORDER_TYPE, TOKENS_FILTER_TYPE} from './TokensList.definitions.js';
+import {TOKENS_ORDER_TYPE, TOKENS_FILTER_TYPE, BASE_STATE} from './TokensList.definitions.js';
 import {FilterPopover} from '../filter-popover/FilterPopover.js'
 import { uuid } from 'uuidv4';
 
 const FLAG_URL_TEMPLATE = `http://purecatamphetamine.github.io/country-flag-icons/3x2/{{COUNTRY_CODE}}.svg`
-const INITIAL_MAX_ITEM = 100;
 
 export class TokensList extends React.Component {
     constructor(props) {
         super(props);
 
         this.onFilterChange = this.onFilterChange.bind(this);
-        this.resetState(true);
+
+        // Initially set the dataset as the provided accounts
+        const dataset = tokensList;
+
+        // Added a guid for each individual tokens and made it immutable
+        this.keyedTokensList = this.addKeyToFilterList(dataset);
+        this.countryFilterList = this.getCountryFiltersList(dataset); 
+        this.mfaFilterList = this.getMfaFiltersList(dataset);
+
+        // Initiate the state when the page is opened
+        this.state = {
+            ...BASE_STATE,
+            filteredTokensList: this.keyedTokensList,
+            filteredAndOrderedTokensList: this.keyedTokensList,
+            renderedList: this.buildTokenLines(this.keyedTokensList.slice(0, BASE_STATE.scrollMaxItems)),
+        }
     }
 
     resetState(isDatasetLarge){
         const dataset = isDatasetLarge ? largeTokensList : tokensList;
-        console.log(dataset.length)
 
         // Added a guid for each individual tokens and made it immutable
-        this.keyedTokensList = dataset.map(tokenItem => ({
+        this.keyedTokensList = this.addKeyToFilterList(dataset);
+        this.countryFilterList = this.getCountryFiltersList(dataset); 
+        this.mfaFilterList = this.getMfaFiltersList(dataset);
+
+        // Initiate the state
+        this.setState({
+            ...BASE_STATE,
+            filteredTokensList: this.keyedTokensList,
+            filteredAndOrderedTokensList: this.keyedTokensList,
+            renderedList: this.buildTokenLines(this.keyedTokensList.slice(0, BASE_STATE.scrollMaxItems)),
+            isDatasetLarge: this.props.isDatasetLarge,
+        });
+    }
+
+    addKeyToFilterList(filterList){
+        // Added a guid for each individual tokens and made it immutable
+        return filterList.map(tokenItem => ({
             ...tokenItem, 
             guid: uuid()
         }));
+    }
 
-        // Generate filter lists   
-        this.countryFilterList = [...new Set(dataset.map(tokenItem => tokenItem.Country.toUpperCase()))].map(countryCode => {
+    getCountryFiltersList(filterList){
+        return [...new Set(filterList.map(tokenItem => tokenItem.Country.toUpperCase()))].map(countryCode => {
             const flagUrl = FLAG_URL_TEMPLATE.replace('{{COUNTRY_CODE}}', countryCode);
             return {
                 ref: countryCode,
                 text: <div><img alt={countryCode} className="token-list-flag-icon" src={flagUrl}/> {` ${countryCode}`}</div>
             };
         });
-        this.mfaFilterList = [...new Set(dataset.map(tokenItem => tokenItem.mfa))].map( mfaItem =>
+    }
+
+    getMfaFiltersList(filterList){
+        return [...new Set(filterList.map(tokenItem => tokenItem.mfa))].map( mfaItem =>
             ({
                 ref: mfaItem,
                 text: mfaItem === "null" ? "None" : mfaItem
             })
         );
-
-        // Initiate the state
-        this.state = {
-            searchValue: '',
-            orderingType: null,                                         // Determines which column is being sorted
-            filteringType: null,
-            orderingDirection: null,                                    // Direct the ordering, 1 means from smaller to larger, -1 means larger to smaller
-            filteredTokensList: this.keyedTokensList,                   // List of tokens once they are filtered
-            filteredAndOrderedTokensList: this.keyedTokensList,         // List of tokens once they are filtered and ordered
-            renderedList: this.buildTokenLines(this.keyedTokensList.slice(0, INITIAL_MAX_ITEM)),   // HTML renders of the list
-            filters: {
-                [TOKENS_FILTER_TYPE.COUNTRY]: [],
-                [TOKENS_FILTER_TYPE.MFA]: [],
-            },
-            scrollMaxItems: 100,
-            isDatasetLarge: this.props.isDatasetLarge,
-        }
     }
 
     async onListScroll(event){
@@ -71,11 +87,11 @@ export class TokensList extends React.Component {
         }
     }
     
-    async componentWillReceiveProps(nextProps) {
+    async componentDidUpdate(prevProps) {
 
-        if(nextProps.searchValue !== this.state.searchValue){
+        if(this.props.searchValue !== this.state.searchValue){
             // Update searchValue
-            await this.setState({ searchValue: nextProps.searchValue });
+            await this.setState({ searchValue: this.props.searchValue });
 
             // Refilter the list, order it and then render it
             await this.filterTokensList();
@@ -83,9 +99,9 @@ export class TokensList extends React.Component {
             this.updateRenderedList(this.state.filteredAndOrderedTokensList);
 
         }
-        if(nextProps.isDatasetLarge !== this.state.isDatasetLarge){
-            await this.setState({ isDatasetLarge: nextProps.isDatasetLarge });
-            this.resetState(nextProps.isDatasetLarge);
+        if(this.props.isDatasetLarge !== this.state.isDatasetLarge){
+            await this.setState({ isDatasetLarge: this.props.isDatasetLarge });
+            this.resetState(this.props.isDatasetLarge);
             await this.updateRenderedList(this.state.filteredAndOrderedTokensList);
         }
     }

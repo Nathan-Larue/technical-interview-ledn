@@ -17,6 +17,7 @@
 }
 
 .token-list-popover-options-container{
+    padding-right: 10px;
     max-height: 310px;
     overflow-y: auto;
 }
