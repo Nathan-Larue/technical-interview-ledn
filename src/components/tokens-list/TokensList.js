@@ -6,8 +6,14 @@ import {SortAmountDown, SortAmountUp, Filter} from '@icon-park/react';
 import {TOKENS_ORDER_TYPE, TOKENS_FILTER_TYPE, BASE_STATE} from './TokensList.definitions.js';
 import {FilterPopover} from '../filter-popover/FilterPopover.js'
 import { uuid } from 'uuidv4';
+import PropTypes from 'prop-types';
 
 const FLAG_URL_TEMPLATE = `http://purecatamphetamine.github.io/country-flag-icons/3x2/{{COUNTRY_CODE}}.svg`
+
+TokensList.propTypes = {
+    isDatasetLarge: PropTypes.bool,
+    searchValue: PropTypes.string,
+}
 
 export class TokensList extends React.Component {
     constructor(props) {
@@ -88,8 +94,7 @@ export class TokensList extends React.Component {
     }
     
     async componentDidUpdate(prevProps) {
-
-        if(this.props.searchValue !== this.state.searchValue){
+        if(this.props.searchValue !== prevProps.searchValue){
             // Update searchValue
             await this.setState({ searchValue: this.props.searchValue });
 
@@ -99,7 +104,7 @@ export class TokensList extends React.Component {
             this.updateRenderedList(this.state.filteredAndOrderedTokensList);
 
         }
-        if(this.props.isDatasetLarge !== this.state.isDatasetLarge){
+        if(this.props.isDatasetLarge !== prevProps.isDatasetLarge){
             await this.setState({ isDatasetLarge: this.props.isDatasetLarge });
             this.resetState(this.props.isDatasetLarge);
             await this.updateRenderedList(this.state.filteredAndOrderedTokensList);

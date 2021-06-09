@@ -1,5 +1,12 @@
 import './FilterPopover.css';
+import PropTypes from 'prop-types';
 import React from 'react';
+
+FilterPopover.propTypes = {
+    active: PropTypes.bool,
+    filterList: PropTypes.array,
+    onChange: PropTypes.func,
+}
 
 export class FilterPopover extends React.Component {
     constructor(props) {
@@ -64,8 +71,8 @@ export class FilterPopover extends React.Component {
                     {
                         this.state.filterList.map( filterItem => {
                             return <div className="tokens-list-popover-line" key={filterItem.ref}>
-                                            <input type="checkbox" checked={filterItem.active} onChange={(e) => this.onFilterCheckboxClicked(filterItem)}/>
-                                    <div className="tokens-list-popover-text" onClick={(e) => this.onFilterCheckboxClicked(filterItem)}>{filterItem.text}</div>
+                                            <input type="checkbox" checked={filterItem.active} onChange={() => this.onFilterCheckboxClicked(filterItem)}/>
+                                    <div className="tokens-list-popover-text" onClick={() => this.onFilterCheckboxClicked(filterItem)}>{filterItem.text}</div>
                                 </div>
                         })
                     }
