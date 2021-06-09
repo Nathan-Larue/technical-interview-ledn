@@ -62,4 +62,6 @@
 .token-list-wrapper{
     height: calc(100% - 41px);
     width: 100%;
+    overflow: hidden;
+    box-shadow: var(--box-shadow-drop-regular);
 }

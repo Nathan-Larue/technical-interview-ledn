@@ -23,13 +23,13 @@ export class FilterPopover extends React.Component {
         await this.setState({ isSelectAllActive: !this.state.isSelectAllActive });
         const reassignedList = this.state.filterList.map( filterItem => ({...filterItem, active: !this.state.isSelectAllActive}));
         this.setState({ filterList: reassignedList });
-        this.props.onChange();
+        this.props.onChange(this.state.filterList);
     }
 
     onFilterCheckboxClicked(filterItem) {
         filterItem.active = !filterItem.active;
         this.setState({ isSelectAllActive: this.state.filterList.some(item => item.active === false) });
-        this.props.onChange();
+        this.props.onChange(this.state.filterList);
     }
 
     render() {
