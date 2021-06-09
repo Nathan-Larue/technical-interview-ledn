@@ -3,8 +3,11 @@ import tokensList from '../../assets/accounts.json'
 import React from 'react';
 import cloneDeep from "lodash/cloneDeep"
 import {SortAmountDown, SortAmountUp, Filter} from '@icon-park/react';
-import {TOKENS_ORDER_TYPE} from './TokensList.definitions.js';
+import {TOKENS_ORDER_TYPE, TOKENS_FILTER_TYPE} from './TokensList.definitions.js';
+import {FilterPopover} from '../filter-popover/FilterPopover.js'
 import { uuid } from 'uuidv4';
+
+const flagUrlTemplate = `http://purecatamphetamine.github.io/country-flag-icons/3x2/{{COUNTRY_CODE}}.svg`
 
 export class TokensList extends React.Component {
     constructor(props) {
@@ -16,44 +19,62 @@ export class TokensList extends React.Component {
             guid: uuid()
         })));
 
+        // Generate filter lists   
+        this.countryFilterList = [...new Set(tokensList.map(tokenItem => tokenItem.Country.toUpperCase()))].map(countryCode => {
+            const flagUrl = flagUrlTemplate.replace('{{COUNTRY_CODE}}', countryCode);
+            return {
+                ref: countryCode,
+                text: <div><img alt={countryCode} className="token-list-flag-icon" src={flagUrl}/> {` ${countryCode}`}</div>
+            };
+        });
+        this.mfaFilterList = [...new Set(tokensList.map(tokenItem => tokenItem.mfa))].map( mfaItem =>
+            ({
+                ref: mfaItem,
+                text: mfaItem === "null" ? "None" : mfaItem
+            })
+        );
 
         // Initiate the state
         const initialList = cloneDeep(this.keyedTokensList);
         this.state = {
+            searchValue: '',
             orderingType: null,                                         // Determines which column is being sorted
             orderingDirection: null,                                    // Direct the ordering, 1 means from smaller to larger, -1 means larger to smaller
             filteredTokensList: initialList,                   // List of tokens once they are filtered
             filteredAndOrderedTokensList: initialList,         // List of tokens once they are filtered and ordered
             renderedList: this.buildTokenLines(initialList),   // HTML renders of the list
+            isCountryFilterActive: false,
+            isMfaFilterActive: false,
         }
     }
+    
+    async componentWillReceiveProps(nextProps) {
+        // Update searchValue
+        await this.setState({ searchValue: nextProps.searchValue });
 
-    buildTokenLines(tokensList) {
-        return tokensList.map(tokenItem => {
-            const flagUrl = `http://purecatamphetamine.github.io/country-flag-icons/3x2/${tokenItem.Country.toUpperCase()}.svg`
-            return (
-                <tr className="tokens-list-line-container" key={tokenItem.guid}>
-                    <td className="tokens-list-column-short">{tokenItem['First Name']}</td>
-                    <td className="tokens-list-column-short">{tokenItem['Last Name']}</td>
-                    <td className="tokens-list-column-short">
-                        <img alt="United States"
-                            className="token-list-flag-icon"
-                            src={flagUrl}/> 
-                        {tokenItem.Country}
-                    </td>
-                    <td className="tokens-list-column-short">{tokenItem.amt}</td>
-                    <td className="tokens-list-column-short">{tokenItem.mfa !== 'null' ? tokenItem.mfa : ''}</td>
-                    <td className="tokens-list-column-long">{tokenItem.email.toLowerCase()}</td>
-                    <td className="tokens-list-column-long">{tokenItem.dob}</td>
-                    <td className="tokens-list-column-long">{tokenItem.createdDate}</td>
-                    <td className="tokens-list-column-long">{tokenItem.ReferredBy}</td>
-                </tr>
-            )
-        });
+        // Refilter the list, order it and then render it
+        await this.filterTokensList();
+        await this.orderTokensList();
+        this.updateRenderedList(this.state.filteredAndOrderedTokensList);
     }
 
-    filterTokensList(){
+    async filterTokensList(){
+        const filteredList = this.keyedTokensList.filter( TokenItem => 
+            this.isTokenNameValid(TokenItem)
+        );
 
+        await this.setState({ filteredTokensList: filteredList });
+    }
+
+    isTokenNameValid(tokenItem){
+        const firstname = tokenItem['First Name'].toLowerCase();
+        const lastname = tokenItem['Last Name'].toLowerCase();
+        const fullname = `${tokenItem['First Name']} ${tokenItem['Last Name']}`.toLowerCase();
+        const searchValue = this.state.searchValue.toLowerCase();
+
+        return firstname.startsWith(searchValue) ||
+            lastname.startsWith(searchValue) ||
+            fullname.startsWith(searchValue)
     }
 
     async setOrderType(orderingType){
@@ -63,6 +84,7 @@ export class TokensList extends React.Component {
         })
 
         await this.orderTokensList();
+        this.updateRenderedList(this.state.filteredAndOrderedTokensList);
     }
 
     // In order to minimize the amount of work that the ordering has to do, we are not filtering again
@@ -81,8 +103,6 @@ export class TokensList extends React.Component {
         await this.setState({ 
             filteredAndOrderedTokensList: orderedList,
         });
-
-        this.updateRenderedList(this.state.filteredAndOrderedTokensList);
     }
 
     async updateRenderedList(finalList){
@@ -91,8 +111,39 @@ export class TokensList extends React.Component {
         });
     }
 
-    getOrderingIcon(orderType) {
+    async toggleFilterPannel(filterType){        
+        await this.setState({
+            isCountryFilterActive: filterType === TOKENS_FILTER_TYPE.COUNTRY ? !this.state.isCountryFilterActive : false,
+            isMfaFilterActive: filterType === TOKENS_FILTER_TYPE.MFA ? !this.state.isMfaFilterActive : false,
+        });
 
+    }
+
+    buildTokenLines(tokensList) {
+        return tokensList.map(tokenItem => {
+            const flagUrl = flagUrlTemplate.replace('{{COUNTRY_CODE}}', tokenItem.Country.toUpperCase());
+            return (
+                <tr className="tokens-list-line-container" key={tokenItem.guid}>
+                    <td className="tokens-list-column-long">{`${tokenItem['First Name']} ${tokenItem['Last Name']}`}</td>
+                    <td className="tokens-list-column-short">
+                        <img alt={tokenItem.Country}
+                            className="token-list-flag-icon"
+                            src={flagUrl}/> 
+                        {tokenItem.Country}
+                    </td>
+                    <td className="tokens-list-column-short">{tokenItem.amt}</td>
+                    <td className="tokens-list-column-short">{tokenItem.mfa !== 'null' ? tokenItem.mfa : ''}</td>
+                    <td className="tokens-list-column-long">{tokenItem.email.toLowerCase()}</td>
+                    <td className="tokens-list-column-long">{tokenItem.dob}</td>
+                    <td className="tokens-list-column-long">{tokenItem.createdDate}</td>
+                    <td className="tokens-list-column-long">{tokenItem.ReferredBy}</td>
+                </tr>
+            )
+        });
+    }
+
+    onFilterChange(){
+        console.log('Filter has changed');
     }
 
     render(){
@@ -101,39 +152,53 @@ export class TokensList extends React.Component {
                 <table className="tokens-list-table" cellSpacing="0">
                     <thead>
                         <tr className="tokens-list-header-container">
-                            <th className="tokens-list-column-short">Firstname</th>
-                            <th className="tokens-list-column-short">Lastname</th>
+                            <th className="tokens-list-column-long">Name</th>
                             <th className="tokens-list-column-short">
                                 <div className="tokens-list-text">Country</div>
-                                <div className="tokens-list-icon">
+                                <div className={ this.state.isCountryFilterActive ? 'tokens-list-icon tokens-list-icon-active' : 'tokens-list-icon'} 
+                                    onClick={() => this.toggleFilterPannel(TOKENS_FILTER_TYPE.COUNTRY)}>
                                     <Filter size="1.2em"/>
                                 </div>
+                                <FilterPopover 
+                                    filterList={this.countryFilterList} 
+                                    active={this.state.isCountryFilterActive}
+                                    onChange={this.onFilterChange}
+                                />
                             </th>
                             <th className="tokens-list-column-short">
                                 <div className="tokens-list-text">Amount</div>
-                                <div className="tokens-list-icon">
+                                <div className={this.state.orderingType === TOKENS_ORDER_TYPE.AMOUNT ? 'tokens-list-icon tokens-list-icon-active' : 'tokens-list-icon'} 
+                                    onClick={() => this.setOrderType(TOKENS_ORDER_TYPE.AMOUNT)}>
                                     {
                                         this.state.orderingType === TOKENS_ORDER_TYPE.AMOUNT && this.state.orderingDirection === 1 ?
-                                            <SortAmountDown size="1.2em" onClick={() => this.setOrderType(TOKENS_ORDER_TYPE.AMOUNT)}/> :
-                                            <SortAmountUp size="1.2em" onClick={() => this.setOrderType(TOKENS_ORDER_TYPE.AMOUNT)}/>
+                                            <SortAmountDown size="1.2em"/> :
+                                            <SortAmountUp size="1.2em"/>
                                     }
                                 </div>
+                                
                             </th>
                             <th className="tokens-list-column-short">
                                 <div className="tokens-list-text">MFA Type</div>
-                                <div className="tokens-list-icon">
+                                <div className={ this.state.isMfaFilterActive ? 'tokens-list-icon tokens-list-icon-active' : 'tokens-list-icon'} 
+                                    onClick={() => this.toggleFilterPannel(TOKENS_FILTER_TYPE.MFA)}>
                                     <Filter size="1.2em"/>
                                 </div>
+                                <FilterPopover 
+                                    filterList={this.mfaFilterList} 
+                                    active={this.state.isMfaFilterActive}
+                                    onChange={this.onFilterChange}
+                                />
                             </th>
                             <th className="tokens-list-column-long">Email</th>
                             <th className="tokens-list-column-long">Date of Birth</th>
                             <th className="tokens-list-column-long">
                                 <div className="tokens-list-text">Date Created</div>
-                                <div className="tokens-list-icon">
+                                <div className={this.state.orderingType === TOKENS_ORDER_TYPE.DATE_CREATED ? 'tokens-list-icon tokens-list-icon-active' : 'tokens-list-icon'} 
+                                    onClick={() => this.setOrderType(TOKENS_ORDER_TYPE.DATE_CREATED)}>
                                     {
                                         this.state.orderingType === TOKENS_ORDER_TYPE.DATE_CREATED && this.state.orderingDirection === 1 ?
-                                            <SortAmountDown size="1.2em" onClick={() => this.setOrderType(TOKENS_ORDER_TYPE.DATE_CREATED)}/> :
-                                            <SortAmountUp size="1.2em" onClick={() => this.setOrderType(TOKENS_ORDER_TYPE.DATE_CREATED)}/>
+                                            <SortAmountDown size="1.2em"/> :
+                                            <SortAmountUp size="1.2em"/>
                                     }
                                 </div>
                             </th>

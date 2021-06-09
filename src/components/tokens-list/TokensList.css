@@ -40,7 +40,8 @@ thead {
 tbody {
     display: block;
     overflow-y: scroll;
-    height: calc(100% - 60px);
+    height: calc(100% - 50px);
+    background-color: var(--color-main-grey-dark);
 }
 
 thead, tbody tr {
@@ -64,11 +65,11 @@ tbody > tr:nth-child(odd) {
 }
 
 .tokens-list-column-short {
-    width: 8%;
+    width: 10%;
 }
 
 .tokens-list-column-long {
-    width: 15%;
+    width: 14%;
 }
 
 .token-list-flag-icon{
@@ -91,7 +92,7 @@ tbody > tr:nth-child(odd) {
     transition: 0.3s;
 }
 
-.tokens-list-icon:hover{
+.tokens-list-icon-active, .tokens-list-icon:hover{
     background-color: var(--color-text-light);
     color: var(--color-main-grey-light);
 }

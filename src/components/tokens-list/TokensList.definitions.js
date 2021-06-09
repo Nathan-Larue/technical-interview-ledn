@@ -3,4 +3,9 @@ const TOKENS_ORDER_TYPE = {
     DATE_CREATED: 'createdDate',
 }
 
-export {TOKENS_ORDER_TYPE}
+const TOKENS_FILTER_TYPE = {
+    COUNTRY: 'Country',
+    MFA: 'mfa',
+}
+
+export {TOKENS_ORDER_TYPE, TOKENS_FILTER_TYPE}

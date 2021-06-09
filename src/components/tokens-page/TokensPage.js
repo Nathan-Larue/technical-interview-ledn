@@ -17,7 +17,6 @@ export class TokensPage extends React.Component {
 
     async onSearchChange(event) {
         await this.setState({ searchValue: event.target.value });
-        console.log(this.state.searchValue);
     }
 
     render(){
@@ -49,7 +48,7 @@ export class TokensPage extends React.Component {
                     </button>
                 </div>
                 <div className="token-list-wrapper">
-                    <TokensList search={this.state.searchValue}/>
+                    <TokensList searchValue={this.state.searchValue}/>
                 </div>
             </div>
         );

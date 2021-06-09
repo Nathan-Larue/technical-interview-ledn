@@ -1,0 +1,49 @@
+.tokens-list-popover{
+    position: absolute;
+    background-color: var(--color-input-background);
+    padding: 7px;
+    box-shadow: var(--box-shadow-drop-regular);
+    overflow: hidden;
+    min-width: 70px;
+}
+
+.token-list-popover-button{
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 5px 0;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.token-list-popover-button:hover{
+    background-color: var(--color-text-light);
+    color: var(--color-main-grey-light);
+}
+
+.tokens-list-popover-spacer {
+    padding-bottom: 8px;
+}
+
+
+.tokens-list-popover-line {
+    vertical-align: middle;
+}
+
+.tokens-list-popover-line > input {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.tokens-list-popover-text {
+    display: inline-block;
+    vertical-align: middle;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.tokens-list-popover-inactive{
+    height: 0;
+    padding: 0;
+}
