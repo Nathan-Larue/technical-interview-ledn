@@ -5,7 +5,15 @@ export class FilterPopover extends React.Component {
     constructor(props) {
         super(props);
         this.onSelectAllClicked = this.onSelectAllClicked.bind(this);
-        const formattedFilterList = props.filterList.map( filterItem => ({ ...filterItem, active: true}));
+        const formattedFilterList = props.filterList.map( filterItem => ({ ...filterItem, active: true})).sort(function(itemA, itemB) {
+            if ( itemA.ref.toLowerCase() < itemB.ref.toLowerCase() ){
+                return -1;
+            }
+            if ( itemA.ref.toLowerCase() > itemB.ref.toLowerCase() ){
+                return 1;
+            }
+            return 0;
+        });
 
         this.state = {
             active: props.active,
@@ -38,14 +46,16 @@ export class FilterPopover extends React.Component {
                 <div className="tokens-list-popover-line tokens-list-popover-spacer">
                     <div className="token-list-popover-button" onClick={this.onSelectAllClicked}>{ this.state.isSelectAllActive ? 'Select all' : 'Unselect all'}</div>
                 </div>
-                {
-                    this.state.filterList.map( filterItem => {
-                        return <div className="tokens-list-popover-line" key={filterItem.ref}>
-                                        <input type="checkbox" checked={filterItem.active} onChange={(e) => this.onFilterCheckboxClicked(filterItem)}/>
-                                <div className="tokens-list-popover-text" onClick={(e) => this.onFilterCheckboxClicked(filterItem)}>{filterItem.text}</div>
-                            </div>
-                    })
-                }
+                <div className="token-list-popover-options-container">
+                    {
+                        this.state.filterList.map( filterItem => {
+                            return <div className="tokens-list-popover-line" key={filterItem.ref}>
+                                            <input type="checkbox" checked={filterItem.active} onChange={(e) => this.onFilterCheckboxClicked(filterItem)}/>
+                                    <div className="tokens-list-popover-text" onClick={(e) => this.onFilterCheckboxClicked(filterItem)}>{filterItem.text}</div>
+                                </div>
+                        })
+                    }
+                </div>
             </div>
         );
     }

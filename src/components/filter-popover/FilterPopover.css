@@ -16,6 +16,11 @@
     cursor: pointer;
 }
 
+.token-list-popover-options-container{
+    max-height: 310px;
+    overflow-y: auto;
+}
+
 .token-list-popover-button:hover{
     background-color: var(--color-text-light);
     color: var(--color-main-grey-light);

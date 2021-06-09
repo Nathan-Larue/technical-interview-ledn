@@ -1,35 +1,42 @@
 import './TokensList.css';
 import tokensList from '../../assets/accounts.json'
+import largeTokensList from '../../assets/accounts_large.json'
 import React from 'react';
-import cloneDeep from "lodash/cloneDeep"
 import {SortAmountDown, SortAmountUp, Filter} from '@icon-park/react';
 import {TOKENS_ORDER_TYPE, TOKENS_FILTER_TYPE} from './TokensList.definitions.js';
 import {FilterPopover} from '../filter-popover/FilterPopover.js'
 import { uuid } from 'uuidv4';
 
-const flagUrlTemplate = `http://purecatamphetamine.github.io/country-flag-icons/3x2/{{COUNTRY_CODE}}.svg`
+const FLAG_URL_TEMPLATE = `http://purecatamphetamine.github.io/country-flag-icons/3x2/{{COUNTRY_CODE}}.svg`
+const INITIAL_MAX_ITEM = 100;
 
 export class TokensList extends React.Component {
     constructor(props) {
         super(props);
 
         this.onFilterChange = this.onFilterChange.bind(this);
+        this.resetState(true);
+    }
+
+    resetState(isDatasetLarge){
+        const dataset = isDatasetLarge ? largeTokensList : tokensList;
+        console.log(dataset.length)
 
         // Added a guid for each individual tokens and made it immutable
-        this.keyedTokensList = tokensList.map(tokenItem => ({
+        this.keyedTokensList = dataset.map(tokenItem => ({
             ...tokenItem, 
             guid: uuid()
         }));
 
         // Generate filter lists   
-        this.countryFilterList = [...new Set(tokensList.map(tokenItem => tokenItem.Country.toUpperCase()))].map(countryCode => {
-            const flagUrl = flagUrlTemplate.replace('{{COUNTRY_CODE}}', countryCode);
+        this.countryFilterList = [...new Set(dataset.map(tokenItem => tokenItem.Country.toUpperCase()))].map(countryCode => {
+            const flagUrl = FLAG_URL_TEMPLATE.replace('{{COUNTRY_CODE}}', countryCode);
             return {
                 ref: countryCode,
                 text: <div><img alt={countryCode} className="token-list-flag-icon" src={flagUrl}/> {` ${countryCode}`}</div>
             };
         });
-        this.mfaFilterList = [...new Set(tokensList.map(tokenItem => tokenItem.mfa))].map( mfaItem =>
+        this.mfaFilterList = [...new Set(dataset.map(tokenItem => tokenItem.mfa))].map( mfaItem =>
             ({
                 ref: mfaItem,
                 text: mfaItem === "null" ? "None" : mfaItem
@@ -44,26 +51,46 @@ export class TokensList extends React.Component {
             orderingDirection: null,                                    // Direct the ordering, 1 means from smaller to larger, -1 means larger to smaller
             filteredTokensList: this.keyedTokensList,                   // List of tokens once they are filtered
             filteredAndOrderedTokensList: this.keyedTokensList,         // List of tokens once they are filtered and ordered
-            renderedList: this.buildTokenLines(this.keyedTokensList),   // HTML renders of the list
+            renderedList: this.buildTokenLines(this.keyedTokensList.slice(0, INITIAL_MAX_ITEM)),   // HTML renders of the list
             filters: {
                 [TOKENS_FILTER_TYPE.COUNTRY]: [],
                 [TOKENS_FILTER_TYPE.MFA]: [],
-            }
+            },
+            scrollMaxItems: 100,
+            isDatasetLarge: this.props.isDatasetLarge,
+        }
+    }
+
+    async onListScroll(event){
+        if(
+            (event.target.scrollTop + event.target.offsetHeight) > (event.target.scrollHeight - 300) &&            
+            this.state.scrollMaxItems < this.state.filteredAndOrderedTokensList.length
+        ) {
+            await this.setState({ scrollMaxItems: this.state.scrollMaxItems + 50 })
+            await this.updateRenderedList(this.state.filteredAndOrderedTokensList);
         }
     }
     
     async componentWillReceiveProps(nextProps) {
-        // Update searchValue
-        await this.setState({ searchValue: nextProps.searchValue });
 
-        // Refilter the list, order it and then render it
-        await this.filterTokensList();
-        await this.orderTokensList();
-        this.updateRenderedList(this.state.filteredAndOrderedTokensList);
+        if(nextProps.searchValue !== this.state.searchValue){
+            // Update searchValue
+            await this.setState({ searchValue: nextProps.searchValue });
+
+            // Refilter the list, order it and then render it
+            await this.filterTokensList();
+            await this.orderTokensList();
+            this.updateRenderedList(this.state.filteredAndOrderedTokensList);
+
+        }
+        if(nextProps.isDatasetLarge !== this.state.isDatasetLarge){
+            await this.setState({ isDatasetLarge: nextProps.isDatasetLarge });
+            this.resetState(nextProps.isDatasetLarge);
+            await this.updateRenderedList(this.state.filteredAndOrderedTokensList);
+        }
     }
 
     async filterTokensList(){
-        console.log(this.state.filters[TOKENS_FILTER_TYPE.COUNTRY])
         const filteredList = this.keyedTokensList.filter( TokenItem => 
             this.isTokenNameValid(TokenItem) &&
             this.isTokenCountryValid(TokenItem) &&
@@ -122,7 +149,7 @@ export class TokensList extends React.Component {
 
     async updateRenderedList(finalList){
         await this.setState({ 
-            renderedList: this.buildTokenLines(finalList),
+            renderedList: this.buildTokenLines(finalList.slice(0, this.state.scrollMaxItems)),
         });
     }
 
@@ -132,7 +159,7 @@ export class TokensList extends React.Component {
 
     buildTokenLines(tokensList) {
         return tokensList.map(tokenItem => {
-            const flagUrl = flagUrlTemplate.replace('{{COUNTRY_CODE}}', tokenItem.Country.toUpperCase());
+            const flagUrl = FLAG_URL_TEMPLATE.replace('{{COUNTRY_CODE}}', tokenItem.Country.toUpperCase());
             return (
                 <tr className="tokens-list-line-container" key={tokenItem.guid}>
                     <td className="tokens-list-column-long">{`${tokenItem['First Name']} ${tokenItem['Last Name']}`}</td>
@@ -147,7 +174,7 @@ export class TokensList extends React.Component {
                     <td className="tokens-list-column-long">{tokenItem.email.toLowerCase()}</td>
                     <td className="tokens-list-column-long">{tokenItem.dob}</td>
                     <td className="tokens-list-column-long">{tokenItem.createdDate}</td>
-                    <td className="tokens-list-column-long">{tokenItem.ReferredBy}</td>
+                    <td className="tokens-list-column-long">{tokenItem.ReferredBy ? tokenItem.ReferredBy.toLowerCase() : ''}</td>
                 </tr>
             )
         });
@@ -227,8 +254,14 @@ export class TokensList extends React.Component {
                         <th className="tokens-list-column-long">ReferredBy</th>
                     </tr>
                 </thead>
-                <tbody id="tokens-list-body">
-                    {this.state.renderedList}
+                <tbody id="tokens-list-body" onScroll={e => this.onListScroll(e)}>
+                    {
+                        this.state.filteredAndOrderedTokensList.length > 0 ?
+                        this.state.renderedList :
+                        <tr className="tokens-list-no-result-line">
+                            <td colSpan="8" className="tokens-list-no-result-column">Oops! It seems like there are no results for the parameters provided.</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         );

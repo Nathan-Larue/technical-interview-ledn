@@ -89,3 +89,16 @@ tbody > tr:nth-child(odd) {
     background-color: var(--color-text-light);
     color: var(--color-main-grey-light);
 }
+
+.tokens-list-no-result-line{
+    height: 100%;
+}
+
+.tokens-list-no-result-column{
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    color: var(--color-text-light);
+    font-weight: bold;
+    font-size: 18px;
+}

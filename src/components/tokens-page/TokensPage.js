@@ -9,9 +9,11 @@ export class TokensPage extends React.Component {
     constructor(props) {
         super(props);
         this.TokensListRef = React.createRef();
+        this.toggleDatasetSize = this.toggleDatasetSize.bind(this);
 
         this.state = {
             searchValue: '',
+            isDatasetLarge: false,
         }
 
         // Bind this to the function to keep it defined
@@ -20,6 +22,10 @@ export class TokensPage extends React.Component {
 
     async onSearchChange(event) {
         await this.setState({ searchValue: event.target.value });
+    }
+
+    async toggleDatasetSize(){
+        await this.setState({ isDatasetLarge: !this.state.isDatasetLarge });
     }
 
     onDownloadCsv(){
@@ -49,7 +55,7 @@ export class TokensPage extends React.Component {
                         value={this.state.searchValue}
                         onChange={this.onSearchChange}
                     />
-                    <button className="token-header-button">
+                    <button className="token-header-button" onClick={this.toggleDatasetSize}>
                         <div className="token-header-button-icon-wrapper">
                             <Add/>
                         </div>
@@ -68,7 +74,7 @@ export class TokensPage extends React.Component {
                     </button>
                 </div>
                 <div className="token-list-wrapper">
-                    <TokensList ref={this.TokensListRef} searchValue={this.state.searchValue}/>
+                    <TokensList ref={this.TokensListRef} isDatasetLarge={this.state.isDatasetLarge} searchValue={this.state.searchValue}/>
                 </div>
             </div>
         );
