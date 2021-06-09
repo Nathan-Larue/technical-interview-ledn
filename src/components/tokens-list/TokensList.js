@@ -1,16 +1,16 @@
 import "./TokensList.css";
-import tokensList from "../../assets/accounts.json";
-import largeTokensList from "../../assets/accounts_large.json";
 import React from "react";
 import { SortAmountDown, SortAmountUp, Filter } from "@icon-park/react";
+import { uuid } from "uuidv4";
+import PropTypes from "prop-types";
+import { FilterPopover } from "../filter-popover/FilterPopover.js";
+import tokensList from "../../assets/accounts.json";
+import largeTokensList from "../../assets/accounts_large.json";
 import {
   TOKENS_ORDER_TYPE,
   TOKENS_FILTER_TYPE,
   BASE_STATE,
 } from "./TokensList.definitions.js";
-import { FilterPopover } from "../filter-popover/FilterPopover.js";
-import { uuid } from "uuidv4";
-import PropTypes from "prop-types";
 
 const FLAG_URL_TEMPLATE = `http://purecatamphetamine.github.io/country-flag-icons/3x2/{{COUNTRY_CODE}}.svg`;
 

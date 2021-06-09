@@ -1,7 +1,7 @@
 import "./App.css";
+import React from "react";
 import { TokensPage } from "./components/tokens-page/TokensPage.js";
 import { Header } from "./components/header/Header.js";
-import React from "react";
 
 function App() {
   return (

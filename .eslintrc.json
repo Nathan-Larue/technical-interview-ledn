@@ -7,7 +7,8 @@
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended",
-        "plugin:prettier/recommended"
+        "plugin:prettier/recommended",
+        "plugin:css-modules/recommended"
     ],
     "parserOptions": {
         "ecmaFeatures": {
@@ -17,7 +18,8 @@
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+        "import-order"
     ],
     "rules": {
         "react/jsx-no-bind": ["error", {
@@ -38,8 +40,9 @@
         "prettier/prettier": [
             "error",
             {
-              "endOfLine": "auto"
+                "endOfLine": "auto"
             }
-          ]
+        ],
+        "import-order/import-order": 2
     }
 }
