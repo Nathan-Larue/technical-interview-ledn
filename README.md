@@ -97,7 +97,7 @@ Here is how I would have proceeded for unit testing on IO oriented functions:
 4. Would have repeated the process with edge cases, such as `undefined` or `null` parameters, and would have added case-sensitive tests to see if the results were the same.
 
 
-#### Smoke testing
+#### Sanity testing
 Our functionality testing would have simulated user interaction with the apps by automating clicks on the different buttons and would have compared the resulting array of ordered and filtered tokens account from the state (`filteredAndOrderedTokensList`).
 
 **e.g: Testing the search input data propagation**
