@@ -22,6 +22,7 @@ const BASE_STATE = {
   },
   scrollMaxItems: 100,
   isDatasetLarge: false,
+  isLoading: false,
 };
 
 export { TOKENS_ORDER_TYPE, TOKENS_FILTER_TYPE, BASE_STATE };

@@ -4,6 +4,7 @@ import { SortAmountDown, SortAmountUp, Filter } from "@icon-park/react";
 import { uuid } from "uuidv4";
 import PropTypes from "prop-types";
 import { FilterPopover } from "../filter-popover/FilterPopover.js";
+import loadingGif from "../../assets/loading.gif";
 import tokensList from "../../assets/accounts.json";
 import largeTokensList from "../../assets/accounts_large.json";
 import {
@@ -73,6 +74,11 @@ export class TokensList extends React.Component {
       await this.filterTokensList();
       await this.orderTokensList();
       await this.updateRenderedList(this.state.filteredAndOrderedTokensList);
+    }
+
+    // If our dataset has change, reset the state and rerender the page
+    if (this.props.isLoading !== prevProps.isLoading) {
+      await this.setState({ isLoading: this.props.isLoading });
     }
   }
 
@@ -413,19 +419,31 @@ export class TokensList extends React.Component {
             <th className="tokens-list-column-long">ReferredBy</th>
           </tr>
         </thead>
-        <tbody id="tokens-list-body" onScroll={(e) => this.onListScroll(e)}>
-          {/* This sections is for the main table, which displays a message if no item are in the table */}
-          {this.state.filteredAndOrderedTokensList.length > 0 ? (
-            this.state.renderedList
-          ) : (
+        {this.state.isLoading ? (
+          /* If the component is currently loading, hide the default list and show the loading*/
+          <tbody id="tokens-list-body">
             <tr className="tokens-list-no-result-line">
               <td colSpan="8" className="tokens-list-no-result-column">
-                Oops! It seems like there are no results for the parameters
-                provided.
+                <img src={loadingGif} height="30" />
               </td>
             </tr>
-          )}
-        </tbody>
+          </tbody>
+        ) : (
+          /* If the component is not currently loading, show the default list*/
+          <tbody id="tokens-list-body" onScroll={(e) => this.onListScroll(e)}>
+            {/* This sections is for the main table, which displays a message if no item are in the table */}
+            {this.state.filteredAndOrderedTokensList.length > 0 ? (
+              this.state.renderedList
+            ) : (
+              <tr className="tokens-list-no-result-line">
+                <td colSpan="8" className="tokens-list-no-result-column">
+                  Oops! It seems like there are no results for the parameters
+                  provided.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        )}
       </table>
     );
   }
@@ -434,4 +452,5 @@ export class TokensList extends React.Component {
 TokensList.propTypes = {
   isDatasetLarge: PropTypes.bool,
   searchValue: PropTypes.string,
+  isLoading: PropTypes.bool,
 };

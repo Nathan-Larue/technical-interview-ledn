@@ -2,12 +2,20 @@ import "./TokensPage.css";
 import React from "react";
 import { Add, Reduce, Download } from "@icon-park/react";
 import { saveAs } from "file-saver";
+import { DebounceInput } from "react-debounce-input";
 import { TokensList } from "../tokens-list/TokensList.js";
+
+const DEBOUNCE_SEARCH_INPUT_TIME = 300;
 
 export class TokensPage extends React.Component {
   constructor(props) {
     super(props);
+
+    // Bind this to the function to keep it defined
     this.toggleDatasetSize = this.toggleDatasetSize.bind(this);
+    this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchInput = this.onSearchInput.bind(this);
+    this.setState = this.setState.bind(this);
 
     // Creating a reference tp access a component state later on
     this.TokensListRef = React.createRef();
@@ -16,10 +24,15 @@ export class TokensPage extends React.Component {
     this.state = {
       searchValue: "",
       isDatasetLarge: false,
+      isLoading: false,
     };
+  }
 
-    // Bind this to the function to keep it defined
-    this.onSearchChange = this.onSearchChange.bind(this);
+  /**
+   * Notifies that an input was triggered, thus triggering the loading
+   */
+  async onSearchInput() {
+    await this.setState({ isLoading: true });
   }
 
   /**
@@ -27,7 +40,7 @@ export class TokensPage extends React.Component {
    * @param {Object} event - The event information passed by the input release
    */
   async onSearchChange(event) {
-    await this.setState({ searchValue: event.target.value });
+    await this.setState({ searchValue: event.target.value, isLoading: false });
   }
 
   /**
@@ -70,10 +83,12 @@ export class TokensPage extends React.Component {
           CSV download and the two buttons above the table 
         */}
         <div className="token-header-container">
-          <input
+          <DebounceInput
             type="text"
             className="token-header-search"
             placeholder="search by name"
+            debounceTimeout={DEBOUNCE_SEARCH_INPUT_TIME}
+            onInput={this.onSearchInput}
             value={this.state.searchValue}
             onChange={this.onSearchChange}
           />
@@ -103,6 +118,7 @@ export class TokensPage extends React.Component {
             ref={this.TokensListRef}
             isDatasetLarge={this.state.isDatasetLarge}
             searchValue={this.state.searchValue}
+            isLoading={this.state.isLoading}
           />
         </div>
       </div>
