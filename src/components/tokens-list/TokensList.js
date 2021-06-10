@@ -57,33 +57,23 @@ export class TokensList extends React.Component {
 
     // If our dataset has change, reset the state and rerender the page
     if (this.props.isDatasetLarge !== prevProps.isDatasetLarge) {
-      this.resetState(this.props.isDatasetLarge);
+      const dataset = this.props.isDatasetLarge ? largeTokensList : tokensList;
+
+      // Initiate the state
+      await this.setState({
+        ...BASE_STATE,
+        searchValue: this.state.searchValue,
+      });
+
+      // Added a guid for each individual tokens and made it immutable
+      this.keyedTokensList = this.addKeyToFilterList(dataset);
+      this.countryFilterList = this.getCountryFiltersList(dataset);
+      this.mfaFilterList = this.getMfaFiltersList(dataset);
+
+      await this.filterTokensList();
+      await this.orderTokensList();
       await this.updateRenderedList(this.state.filteredAndOrderedTokensList);
     }
-  }
-
-  /**
-   * The goal here is to reinitialize the state depending on the props selected
-   * @param {Boolean} isDatasetLarge - Determines which dataset to pick when reinitializing the state
-   */
-  resetState(isDatasetLarge) {
-    const dataset = isDatasetLarge ? largeTokensList : tokensList;
-
-    // Added a guid for each individual tokens and made it immutable
-    this.keyedTokensList = this.addKeyToFilterList(dataset);
-    this.countryFilterList = this.getCountryFiltersList(dataset);
-    this.mfaFilterList = this.getMfaFiltersList(dataset);
-
-    // Initiate the state
-    this.setState({
-      ...BASE_STATE,
-      filteredTokensList: this.keyedTokensList,
-      filteredAndOrderedTokensList: this.keyedTokensList,
-      renderedList: this.buildTokenLines(
-        this.keyedTokensList.slice(0, BASE_STATE.scrollMaxItems)
-      ),
-      isDatasetLarge: this.props.isDatasetLarge,
-    });
   }
 
   /**
