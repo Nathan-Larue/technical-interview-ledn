@@ -27,7 +27,7 @@ I decided to work with _React_ even though I never had the chance to try it out.
 ## Design Decision
 
 ### Interface
-I decided to go with a design rather similar to the one the _Ledn_ app is using (vertical header to the left, content to the right), but with a dark theme / high contrast instead. For the content itself, I decided to follow the [table dark theme wireframe](https://dribbble.com/shots/6714447/attachments/6714447-Table-Dark-theme?mode=media) from [Anastasia Buksa](https://dribbble.com/buksa). The icons were taken from [IconPark](https://github.com/bytedance/IconPark), a free icon library and the font used was [Lato from Google Fonts](https://fonts.google.com/specimen/Lato?query=lato).
+I decided to go with a design rather similar to the one the _Ledn_ app is using (vertical header to the left, content to the right), but with a dark theme / high contrast approach instead. For the content itself, I decided to follow the [table dark theme wireframe](https://dribbble.com/shots/6714447/attachments/6714447-Table-Dark-theme?mode=media) from [Anastasia Buksa](https://dribbble.com/buksa). The icons were taken from [IconPark](https://github.com/bytedance/IconPark), a free icon library and the font used was [Lato from Google Fonts](https://fonts.google.com/specimen/Lato?query=lato).
 
 <br>
 <img src='./src\assets\Ledn_Regular_App.png' width='500'>
@@ -54,35 +54,52 @@ Ordering can be applied on the `Amount` and the `Date Created` column. Once appl
 Filtering is done via a toggable pannel, in which you can individually select which filter to add / remove or if you wish to select / remove all of them.
 
 ### Libraries 
-When it comes to web application, using libraries some time gives us a lot of leverage. As I wanted to work on my _React_ skills, I decided to do most of the UI component by myself. If this project would have been a more long term endeavor, I would have used libraries for flexible components such as `Datagrids` (for the table) and `Popovers` (for the filtering pannels).
+When it comes to web application, using libraries gives us a lot of leverage in terms of efficiency. As I wanted to work on my _React_ skills, I decided to do most of the UI component by myself. If this project would have been a more long term endeavor, I would have used libraries for flexible components such as `Datagrids` (for the table) and `Popovers` (for the filtering pannels).
 
 ## Possible Improvements
 
 ### Disabling the sort
-You can switch the sorts from `Amount` to `Date Created`, but you can't disable it once it's activated, aside from refreshing the page or switching the tokens from the small to the large dataset and then one more time. 
+You can switch the sorts from `Amount` to `Date Created`, but you can't disable it once it's activated, aside from refreshing the page or changing the dataset. 
 
 ### Tokens List Component Destructuring
-The tokens list component could have been destructured more. The ordering and filtering buttons are good example of what could have been destructred even more (aside from the filtering pannels).
+The tokens list component could have been destructured more. The ordering and filtering buttons are good example of what could have been destructred even more (aside from the filtering pannels) into _React_ components.
 
 ### Data indexing
 Data indexing could have been used for filtering. It seemed a bit overkill right now as our dataset parameters that we filtered were not contained in arrays, but it would have made the whole web app more scalable for array based parameter filtering.
 
 ### Functions I/O uniformity 
-My functions sometime used regular inputs, sometime they obtained data via global variables or state variables. Even though one of these options is more favorable in one case or the other, I had no default function I/O types. More uniformity in the functions setup would have made the tests setup more uniform,
+My functions sometime used regular inputs, sometime they obtained data via global variables or state variables. Even though one of these options is more favorable in one case or the other, I had no default I/O approach. More uniformity in the functions usually makes for more readability and faster tests creation (as the same approach can usually be repeated).
 
 ### Redux for the datasets
-Using a store to work with the Tokens account record would have been a more traditionnal approach.
+Using a store to work with the Tokens account record would have been a more traditionnal approach, but it seemed unecessary for the current scope.
 
 ## Testing
 
 ### Testing on large datasets
-Using the `[+] Tokens` or `[-] Tokens` buttons above the table allows you to switch from a dataset from a small amount of data (the dataset provided) or a large one (a new dataset generated of 10,000 records).
+Using the `[+] Tokens` or `[-] Tokens` buttons above the table allows you to switch from a small dataset (the dataset provided, also known as `accounts.json`) or a large one (a new dataset generated of 10,000 records, also known as `accounts_large.json`).
 
 ### Where are the tests?
-I understand that tests are extremelly important in a regular web application, but I tought it would be more relevant to give you the tough process behind **how** I would have done the tests. 
+I understand that tests are extremelly important in a regular web application, but I tought it would be more relevant to give you my tough process behind **how** I would have done the tests instead. 
 
 #### Unit testing
-Each functions that would have an input to output behavior, either via State fetch and modification or usual inputs to return statement, would have been tested.
+Here is how I would have proceed for unit testing on IO oriented functions:
+1. Setup a mock state in which we want to test the function;
+2. Setup the data that is required by the function to execute (either via passing variables to the function or editing the state);
+3. Compared to results (either returned by the function or by looking at the edited component state) to an expected output.
+
+**e.g: Testing the isTokenNameValid(TokenItem)**
+1. I would have built a TokenItem with the `First Name` and `Last Name` parameters to be `Mina` and `Botrous` respectively;
+2. I would have set the `TokensList` component state parameter called `searchValue` to all the possible *happy paths* (following the process [explained previously here](https://github.com/Nathan-Larue/technical-interview-ledn#name-search));
+3. Would have expected either `True` or `False` for each of the `searchValue` appropriate response;
+4. Would have repeated the process with edge cases, such as `undefined` or `null` parameters, and would have added case-sensitive tests to see if the results were the same.
+
 
 #### Smoke testing
 Our functionality testing would have simulated user interaction with the apps by automating clicks on the different buttons, and would have compared the resulting array of ordered and filtered tokens account from the state (`filteredAndOrderedTokensList`).
+
+**e.g: Testing the search input data propagation**
+1. Automate an interaction with the search input and add a given string to it;
+2. Look if the `onSearchChange` was called at least one time (depending on the automation tool, it might be called more then once to simulate user interactions);
+3. Look if `TokensPage` state did update with the appropriate value on the `searchValue` parameter;
+4. Look if following the change in the `TokensPage` state, the `componentDidUpdate()` function was triggered inside of the `TokensList` component;
+5. Lookup the `TokensList` state parameter called `searchValue` to see if it has changed to the appropriate value.
