@@ -12,6 +12,7 @@ import {
   BASE_STATE,
 } from "./TokensList.definitions.js";
 
+// Url used to get icons when passing the custom component was not possible
 const FLAG_URL_TEMPLATE = `http://purecatamphetamine.github.io/country-flag-icons/3x2/{{COUNTRY_CODE}}.svg`;
 
 export class TokensList extends React.Component {
