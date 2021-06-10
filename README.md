@@ -56,6 +56,9 @@ Filtering is done via a togglable panel, in which you can individually select wh
 ### Libraries 
 When it comes to web applications, using libraries gives us a lot of leverage in terms of efficiency. As I wanted to work on my _React_ skills, I decided to do most of the UI components by myself. If this project would have been a more long-term endeavor, I would have used libraries for flexible components such as `Datagrids` (for the table) and `Popovers` (for the filtering panels).
 
+### Debounce
+I decided to use a debounce to make it easier on the filtering and ordering. The debounce is set for 300ms.
+
 ## Possible Improvements
 
 ### Disabling the sort
