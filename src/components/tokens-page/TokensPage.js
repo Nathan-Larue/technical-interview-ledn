@@ -62,11 +62,17 @@ export class TokensPage extends React.Component {
 
     // Build the csv data with the displayed data from the TokensList state
     tokensListState.filteredAndOrderedTokensList.forEach((tokenHolder) => {
-      Object.keys(tokenHolder).forEach((tokenParameter) => {
-        if (tokenParameter === "guid") return;
-        csvContent += `${tokenHolder[tokenParameter]}, `;
-      });
-      csvContent += `\n`;
+      csvContent += `${[
+        tokenHolder["First Name"],
+        tokenHolder["Last Name"],
+        tokenHolder["Country"],
+        tokenHolder["email"],
+        tokenHolder["dob"],
+        tokenHolder["mfa"],
+        tokenHolder["amt"],
+        tokenHolder["createdDate"],
+        tokenHolder["ReferredBy"],
+      ].join(",")}\n`;
     });
 
     // Setup the file parameters and allow the user to download it
