@@ -10,6 +10,7 @@ This was built solely for the `Chrome` browser.
 ## Setup
 ```
 git clone https://github.com/Nathan-Larue/technical-interview-ledn.git
+cd .\technical-interview-ledn\
 npm install
 npm start
 ```
