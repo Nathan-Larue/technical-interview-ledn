@@ -79,7 +79,7 @@ Using a store to work with the Tokens account record would have been a more trad
 Using the `[+] Tokens` or `[-] Tokens` buttons above the table allows you to switch from a small dataset (the dataset provided, also known as `accounts.json`) or a large one (a new dataset generated of 10,000 records, also known as `accounts_large.json`).
 
 ### Where are the tests?
-I understand that tests are extremely important in a regular web application, but I thought it would be more relevant to give you my tough process behind **how** I would have done the tests instead. 
+I understand that tests are extremely important in a regular web application, but I thought it would be more relevant to give you my thought process behind **how** I would have done the tests instead. 
 
 #### Unit testing
 Here is how I would have proceeded for unit testing on IO oriented functions:
