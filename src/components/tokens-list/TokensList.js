@@ -17,7 +17,6 @@ const FLAG_URL_TEMPLATE = `http://purecatamphetamine.github.io/country-flag-icon
 export class TokensList extends React.Component {
   constructor(props) {
     super(props);
-
     this.onFilterChange = this.onFilterChange.bind(this);
 
     // Initially set the dataset as the provided accounts
@@ -39,6 +38,33 @@ export class TokensList extends React.Component {
     };
   }
 
+  /**
+   * We use the props update function to update the search value or to change our dataset when toggled
+   * @param {Object} prevProps - List of props that we had prior to the update
+   */
+  async componentDidUpdate(prevProps) {
+    // If the search value has changed
+    if (this.props.searchValue !== prevProps.searchValue) {
+      // Update searchValue
+      await this.setState({ searchValue: this.props.searchValue });
+
+      // Refilter the list, order it and then render it
+      await this.filterTokensList();
+      await this.orderTokensList();
+      this.updateRenderedList(this.state.filteredAndOrderedTokensList);
+    }
+
+    // If our dataset has change, reset the state and rerender the page
+    if (this.props.isDatasetLarge !== prevProps.isDatasetLarge) {
+      this.resetState(this.props.isDatasetLarge);
+      await this.updateRenderedList(this.state.filteredAndOrderedTokensList);
+    }
+  }
+
+  /**
+   * The goal here is to reinitialize the state depending on the props selected
+   * @param {Boolean} isDatasetLarge - Determines which dataset to pick when reinitializing the state
+   */
   resetState(isDatasetLarge) {
     const dataset = isDatasetLarge ? largeTokensList : tokensList;
 
@@ -59,24 +85,37 @@ export class TokensList extends React.Component {
     });
   }
 
-  addKeyToFilterList(filterList) {
+  /**
+   * Receives a list of object and add/redefine a unique id to the guid parameter of all items
+   * @param {List} tokensList - The initial list to be received
+   * @returns {List} The same list but with every item given a new guid under the guid property
+   */
+  addKeyToFilterList(tokensList) {
     // Added a guid for each individual tokens and made it immutable
-    return filterList.map((tokenItem) => ({
+    return tokensList.map((tokenItem) => ({
       ...tokenItem,
       guid: uuid(),
     }));
   }
 
-  getCountryFiltersList(filterList) {
+  /**
+   * Generates a list of object to pass to the filter (country) popover
+   * @param {Array} tokensList - The list of tokens to be passed
+   * @returns {Array} A list of object containing the text to display and the reference to the token parameter
+   */
+  getCountryFiltersList(tokensList) {
     return [
       ...new Set(
-        filterList.map((tokenItem) => tokenItem.Country.toUpperCase())
+        tokensList.map((tokenItem) => tokenItem.Country.toUpperCase())
       ),
     ].map((countryCode) => {
+      // Generates a URL since we can't pass a custom component via a string
       const flagUrl = FLAG_URL_TEMPLATE.replace(
         "{{COUNTRY_CODE}}",
         countryCode
       );
+
+      //Return an object with a ref parameter as the unique reference to the filter, and the displayed text
       return {
         ref: countryCode,
         text: (
@@ -93,8 +132,13 @@ export class TokensList extends React.Component {
     });
   }
 
-  getMfaFiltersList(filterList) {
-    return [...new Set(filterList.map((tokenItem) => tokenItem.mfa))].map(
+  /**
+   * Generates a list of object to pass to the filter (mfa) popover
+   * @param {Array} tokensList - The list of tokens to be passed
+   * @returns {Array} A list of object containing the text to display and the reference to the token parameter
+   */
+  getMfaFiltersList(tokensList) {
+    return [...new Set(tokensList.map((tokenItem) => tokenItem.mfa))].map(
       (mfaItem) => ({
         ref: mfaItem,
         text: mfaItem === "null" ? "None" : mfaItem,
@@ -102,34 +146,43 @@ export class TokensList extends React.Component {
     );
   }
 
+  /**
+   * This is triggered whenever the user is scrolling, in order to identify when to add items to our infinite list
+   * @param {Object} event - HTML event passed when the scroll happens
+   */
   async onListScroll(event) {
+    // If the scroll is less then 300px from the bottom and we haven't reach the maximum of tokens to display
     if (
       event.target.scrollTop + event.target.offsetHeight >
         event.target.scrollHeight - 300 &&
       this.state.scrollMaxItems < this.state.filteredAndOrderedTokensList.length
     ) {
+      // Update the maximum of displayed token and update the list that is rendered
       await this.setState({ scrollMaxItems: this.state.scrollMaxItems + 50 });
       await this.updateRenderedList(this.state.filteredAndOrderedTokensList);
     }
   }
 
-  async componentDidUpdate(prevProps) {
-    if (this.props.searchValue !== prevProps.searchValue) {
-      // Update searchValue
-      await this.setState({ searchValue: this.props.searchValue });
+  /**
+   * Whenever an option in the filters is changed (country or mfa selected), we need to rerender the list
+   */
+  async onFilterChange(filtersList) {
+    const filters = {
+      ...this.state.filters,
+      [this.state.filteringType]: filtersList
+        .filter((filterItem) => !filterItem.active)
+        .map((filterItem) => filterItem.ref),
+    };
 
-      // Refilter the list, order it and then render it
-      await this.filterTokensList();
-      await this.orderTokensList();
-      this.updateRenderedList(this.state.filteredAndOrderedTokensList);
-    }
-    if (this.props.isDatasetLarge !== prevProps.isDatasetLarge) {
-      await this.setState({ isDatasetLarge: this.props.isDatasetLarge });
-      this.resetState(this.props.isDatasetLarge);
-      await this.updateRenderedList(this.state.filteredAndOrderedTokensList);
-    }
+    await this.setState({ filters });
+    await this.filterTokensList();
+    await this.orderTokensList();
+    this.updateRenderedList(this.state.filteredAndOrderedTokensList);
   }
 
+  /**
+   * This functions triggers the filter on the previously keyed state array and updates the state filtered array
+   */
   async filterTokensList() {
     const filteredList = this.keyedTokensList.filter(
       (TokenItem) =>
@@ -141,6 +194,11 @@ export class TokensList extends React.Component {
     await this.setState({ filteredTokensList: filteredList });
   }
 
+  /**
+   * This functions returns if a given token account holder has a name valid once compared with the search
+   * @param {Object} tokenItem - Information on the token holder
+   * @returns {Boolean} Returns if the token account contains the search name
+   */
   isTokenNameValid(tokenItem) {
     const firstname = tokenItem["First Name"].toLowerCase();
     const lastname = tokenItem["Last Name"].toLowerCase();
@@ -155,17 +213,32 @@ export class TokensList extends React.Component {
     );
   }
 
+  /**
+   * This functions returns if a given token account holder has an unfiltered country
+   * @param {Object} tokenItem - Information on the token holder
+   * @returns {Boolean} Returns if the token account country is in the list of selected countries
+   */
   isTokenCountryValid(tokenItem) {
     return !this.state.filters[TOKENS_FILTER_TYPE.COUNTRY].includes(
       tokenItem.Country
     );
   }
 
+  /**
+   * This functions returns if a given token account holder has an unfiltered mfa type
+   * @param {Object} tokenItem - Information on the token holder
+   * @returns {Boolean} Returns if the token account mfa type is in the list of selected mfa
+   */
   isTokenMfaValid(tokenItem) {
     return !this.state.filters[TOKENS_FILTER_TYPE.MFA].includes(tokenItem.mfa);
   }
 
+  /**
+   * Set the ordering we want to prioritize and set
+   * @param {String} orderingType - Describes which column is currently being ordered
+   */
   async setOrderType(orderingType) {
+    // Update the state
     await this.setState({
       orderingType: orderingType,
       orderingDirection:
@@ -174,11 +247,14 @@ export class TokensList extends React.Component {
           : 1,
     });
 
+    // Order and render
     await this.orderTokensList();
     this.updateRenderedList(this.state.filteredAndOrderedTokensList);
   }
 
-  // In order to minimize the amount of work that the ordering has to do, we are not filtering again
+  /**
+   * This functions triggers the order on the previously filtered state array and updates the state ordered array
+   */
   async orderTokensList() {
     const orderedList = this.state.filteredTokensList.sort((tokenA, tokenB) => {
       if (tokenA[this.state.orderingType] < tokenB[this.state.orderingType]) {
@@ -195,6 +271,9 @@ export class TokensList extends React.Component {
     });
   }
 
+  /**
+   * Updates the rendered state list with the filtered and ordered array
+   */
   async updateRenderedList(finalList) {
     await this.setState({
       renderedList: this.buildTokenLines(
@@ -203,6 +282,10 @@ export class TokensList extends React.Component {
     });
   }
 
+  /**
+   * Opens or close the filtering pannels
+   * @param {String} filterType - Signifies which filter we need to toggle/set
+   */
   async toggleFilterPannel(filterType) {
     await this.setState({
       filteringType:
@@ -210,6 +293,11 @@ export class TokensList extends React.Component {
     });
   }
 
+  /**
+   * Builds the HTML for a given token accounts List
+   * @param {Array} tokensList - List of tokens account hoolder
+   * @returns {Object} - An HTML template of all the lines contained in the table for the tokens accounts in the list
+   */
   buildTokenLines(tokensList) {
     return tokensList.map((tokenItem) => {
       const flagUrl = FLAG_URL_TEMPLATE.replace(
@@ -244,28 +332,11 @@ export class TokensList extends React.Component {
     });
   }
 
-  async onFilterChange(filtersList) {
-    const filters = {
-      ...this.state.filters,
-      [this.state.filteringType]: filtersList
-        .filter((filterItem) => !filterItem.active)
-        .map((filterItem) => filterItem.ref),
-    };
-
-    await this.setState({ filters });
-    await this.filterTokensList();
-    await this.orderTokensList();
-    this.updateRenderedList(this.state.filteredAndOrderedTokensList);
-  }
-
-  getFinalList() {
-    return this.state.filteredAndOrderedTokensList;
-  }
-
   render() {
     return (
       <table className="tokens-list-table" cellSpacing="0">
         <thead>
+          {/* This section contains the header of the table and all the titles */}
           <tr className="tokens-list-header-container">
             <th className="tokens-list-column-long">Name</th>
             <th className="tokens-list-column-short">
@@ -282,6 +353,7 @@ export class TokensList extends React.Component {
               >
                 <Filter size="1.2em" />
               </div>
+              {/* The filter popover is the pannel used to select or deselect options from the filtering menu */}
               <FilterPopover
                 filterList={this.countryFilterList}
                 active={this.state.filteringType === TOKENS_FILTER_TYPE.COUNTRY}
@@ -318,6 +390,7 @@ export class TokensList extends React.Component {
               >
                 <Filter size="1.2em" />
               </div>
+              {/* The filter popover is the pannel used to select or deselect options from the filtering menu */}
               <FilterPopover
                 filterList={this.mfaFilterList}
                 active={this.state.filteringType === TOKENS_FILTER_TYPE.MFA}
@@ -350,6 +423,7 @@ export class TokensList extends React.Component {
           </tr>
         </thead>
         <tbody id="tokens-list-body" onScroll={(e) => this.onListScroll(e)}>
+          {/* This sections is for the main table, which displays a message if no item are in the table */}
           {this.state.filteredAndOrderedTokensList.length > 0 ? (
             this.state.renderedList
           ) : (

@@ -14,13 +14,19 @@ export class FilterPopover extends React.Component {
     };
   }
 
+  /**
+   * Whenever the props get updated, update if the pannel is active or the list of filtering options
+   * @param {Object} prevProps - Object containing all the props before the update
+   */
   async componentDidUpdate(prevProps) {
+    // If the pannel is active, update the state
     if (prevProps.active !== this.props.active) {
       await this.setState({
         active: this.props.active,
       });
     }
 
+    // If the list of filtered options changes, update it
     if (prevProps.filterList !== this.props.filterList) {
       await this.setState({
         filterList: this.formatFilterList(this.props.filterList),
@@ -29,6 +35,11 @@ export class FilterPopover extends React.Component {
     }
   }
 
+  /**
+   * Format the filtering options for the pannel according to the list received
+   * @param {Array} filterList - List of filters received by the parent component
+   * @returns {Array} - The list of filters to render with the appropriate parameters and order
+   */
   formatFilterList(filterList) {
     return filterList
       .map((filterItem) => ({ ...filterItem, active: true }))
@@ -43,6 +54,9 @@ export class FilterPopover extends React.Component {
       });
   }
 
+  /**
+   * Whenever the select/unselect all button is clicked, update the filters accordingly
+   */
   async onSelectAllClicked() {
     // Reassign the entire list
     await this.setState({ isSelectAllActive: !this.state.isSelectAllActive });
@@ -50,10 +64,16 @@ export class FilterPopover extends React.Component {
       ...filterItem,
       active: !this.state.isSelectAllActive,
     }));
+
+    // Update the list and notify the parent component
     this.setState({ filterList: reassignedList });
     this.props.onChange(this.state.filterList);
   }
 
+  /**
+   * Whenever a filtering option is clicked, update the states and if select all should be triggered
+   * @param {List} filterItem - The filtering object received
+   */
   onFilterCheckboxClicked(filterItem) {
     filterItem.active = !filterItem.active;
     this.setState({
