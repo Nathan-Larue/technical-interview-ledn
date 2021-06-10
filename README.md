@@ -5,7 +5,7 @@
 * NPM 6.14.5
 
 ## Compatibility
-This was built on and solely for the `Chrome` browser.
+This was built solely for the `Chrome` browser.
 
 ## Setup
 ```
@@ -17,8 +17,8 @@ npm start
 ## Stack Used
 
 ### React
-I decided to work with _React_, even though I never had the chance to try it out. There were three reasons behind my decision even though I was inexperienced : 
-1. It would allow me to know if I enjoy programming in _React_, thus knowing if Frontend development at _Ledn_ was something that interested me;
+I decided to work with _React_ even though I never had the chance to try it out. There were three reasons behind my decision : 
+1. It would allow me to know if I enjoyed programming in _React_, thus knowing if Frontend development at _Ledn_ was something that interested me;
 2. Since _React_ is a technology used at _Ledn_, it would allow my reviewers to use their expertise to question my coding decisions;
 3. It would give the reviewers an insight on what would be the level of quality I could deliver on my first day in terms of frontend development.
 
@@ -51,8 +51,8 @@ Ordering can be applied on the `Amount` and the `Date Created` column. Once appl
 ### Filtering
 Filtering is done via a toggable pannel, in which you can individually select which filter to add / remove or if you wish to select / remove all of them.
 
-### Librairies 
-When it comes to web application, using libraries some time gives us a lot of leverage. As I wanted to work on my _React_ skills, I decided to do most of the UI component by myself. If this project would have been a more long term endeavor, I would have used libraries for components such as `Datagrids` (for the table) and `Popovers` (for the filtering pannels).
+### Libraries 
+When it comes to web application, using libraries some time gives us a lot of leverage. As I wanted to work on my _React_ skills, I decided to do most of the UI component by myself. If this project would have been a more long term endeavor, I would have used libraries for flexible components such as `Datagrids` (for the table) and `Popovers` (for the filtering pannels).
 
 ## Possible Improvements
 
@@ -71,5 +71,16 @@ My functions sometime used regular inputs to obtain their data, sometime they ob
 ### Redux for the datasets
 Using a store to work with the Tokens account record would have been a more traditionnal approach.
 
-## Tests
-I understand that tests are extremelly important. As 
+## Testing
+
+### Testing on large datasets
+Using the `[+] Tokens` or `[-] Tokens` buttons above the table allows you to switch from a dataset from a small amount of data (the dataset provided) or a large one (a new dataset generated of 10,000 records).
+
+### Where are the tests?
+I understand that tests are extremelly important in a regular web application, but I tought it would be more relevant to give you the tough process behind **how** I would have done the tests. 
+
+#### Unit testing
+Each functions that would have an input to output behavior, either via State fetch and modification or usual inputs to return statement, would have been tested.
+
+#### Smoke testing
+Our functionality testing would have simulated user interaction with the apps by automating clicks on the different buttons, and would have compared the resulting array of ordered and filtered tokens account from the state (`filteredAndOrderedTokensList`).
