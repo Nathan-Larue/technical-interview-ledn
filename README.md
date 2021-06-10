@@ -63,10 +63,10 @@ You can switch the sorts from `Amount` to `Date Created`, but you can't disable 
 The tokens list component could have been destructured more. The ordering and filtering buttons are good example of what could have been destructred even more (aside from the filtering pannels).
 
 ### Data indexing
-Data indexing could have been used for filtering. It seemed a bit overkill right now as our dataset parameters that we filtered were not contained in array, but it would have mde the whole web app more scalable.
+Data indexing could have been used for filtering. It seemed a bit overkill right now as our dataset parameters that we filtered were not contained in arrays, but it would have made the whole web app more scalable for array based parameter filtering.
 
 ### Functions I/O uniformity 
-My functions sometime used regular inputs to obtain their data, sometime they obtain it via global variables or state variables. Even though sometime one of those option is more favorable, I had no default function I/O, which would also make it more uniform in terms of unit testing.
+My functions sometime used regular inputs, sometime they obtained data via global variables or state variables. Even though one of these options is more favorable in one case or the other, I had no default function I/O types. More uniformity in the functions setup would have made the tests setup more uniform,
 
 ### Redux for the datasets
 Using a store to work with the Tokens account record would have been a more traditionnal approach.
