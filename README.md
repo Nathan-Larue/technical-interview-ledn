@@ -5,7 +5,8 @@
 * NPM 6.14.5
 
 ## Compatibility
-This was built solely for the `Chrome` browser.
+* This was built solely for the `Chrome` browser
+* Supported on Windows & Mac computers
 
 ## Setup
 ```
